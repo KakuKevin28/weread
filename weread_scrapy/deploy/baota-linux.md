@@ -212,3 +212,94 @@ python -m scrapy list
 ```bash
 -a crawl_chapters=0 -a crawl_hot_bookmarks=0 -a crawl_public_reviews=0 -a crawl_review_details=0
 ```
+
+
+## 10. 部署 Web 仪表盘
+
+### 10.1 上传 Web 项目
+
+将整个 `weread_web` 文件夹上传到服务器，与 scrapy 项目平级：
+
+```text
+/www/wwwroot/weread_web
+```
+
+文件夹结构：
+```text
+/www/wwwroot/
+├── weread_scrapy/
+│   ├── .env
+│   ├── .venv/
+│   └── ...
+└── weread_web/
+    ├── app.py
+    ├── run_web.sh
+    ├── static/
+    ├── templates/
+    └── .env
+```
+
+### 10.2 配置 .env
+
+```bash
+cd /www/wwwroot/weread_web
+cp .env.example .env
+vim .env
+```
+
+关键配置：
+```text
+WEREAD_MYSQL_HOST=localhost
+WEREAD_MYSQL_PORT=3306
+WEREAD_MYSQL_USER=weread
+WEREAD_MYSQL_PASSWORD=你的数据库密码
+WEREAD_MYSQL_DATABASE=weread_api
+WEREAD_WEB_HOST=0.0.0.0
+WEREAD_WEB_PORT=5050
+```
+
+> 如果 ../weread_scrapy/.env 已配置 MySQL，Web 的 .env 可以只设 `WEREAD_WEB_HOST` 和 `WEREAD_WEB_PORT`
+
+### 10.3 安装依赖
+
+```bash
+cd /www/wwwroot/weread_web
+python3 -m pip install -r requirements.txt
+```
+
+### 10.4 启动服务
+
+```bash
+cd /www/wwwroot/weread_web
+chmod +x run_web.sh
+./run_web.sh
+```
+
+或手动启动：
+```bash
+cd /www/wwwroot/weread_web
+nohup python3 app.py > flask_out.log 2>&1 &
+```
+
+### 10.5 放行端口
+
+在腾讯云控制台 **安全组** 中添加入站规则：
+- 协议：TCP
+- 端口：5050
+- 来源：0.0.0.0/0（或限制为特定 IP）
+
+### 10.6 验证
+
+浏览器访问 `http://你的服务器IP:5050`
+
+如果无法访问，检查：
+```bash
+# 确认进程在运行
+ps aux | grep "python.*app.py"
+
+# 确认端口在监听
+netstat -tlnp | grep 5050
+
+# 查看日志
+tail -f /www/wwwroot/weread_web/flask_out.log
+```

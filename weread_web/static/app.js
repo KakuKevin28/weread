@@ -23,12 +23,12 @@ const formatters = {
     const hours = Math.floor(minutes / 60);
     const rest = minutes % 60;
     if (!hours) return `${minutes} 分钟`;
-    return rest ? `${hours} 小时 ${rest} 分钟` : `${hours} 小时`;
+    return rest ? `${hours} 时 ${rest} 分钟` : `${hours} 时`;
   },
   hours(seconds) {
-    if (!seconds) return "0 小时";
+    if (!seconds) return "0 时";
     const hours = seconds / 3600;
-    return hours >= 100 ? `${Math.round(hours)} 小时` : `${Math.round(hours * 10) / 10} 小时`;
+    return hours >= 100 ? `${Math.round(hours)} 时` : `${Math.round(hours * 10) / 10} 时`;
   },
   dateTime(value) {
     if (!value) return "暂无同步记录";
@@ -76,6 +76,7 @@ const AppSidebar = {
         <div>
           <h1>{{ appName }}</h1>
           <p>个人阅读数据</p>
+        <p>最近同步 {{ dateTime(summary.latest_sync) }}</p>
         </div>
       </div>
 
@@ -111,10 +112,7 @@ const AppSidebar = {
       </div>
 
 
-      <div class="sync">
-        <span>最近同步</span>
-        <strong>{{ dateTime(summary.latest_sync) }}</strong>
-      </div>
+      
     </aside>
   `,
 };
@@ -229,6 +227,12 @@ const CurrentReading = {
           </div>
         </button>
         <p class="empty-state" v-if="!items.length">暂无正在阅读的书</p>
+
+      <reading-bubble-map
+        :categories="categories"
+        :fallback-cover="fallbackCover"
+        @select-book="$emit('select-book', $event)"
+      ></reading-bubble-map>
       </div>
     </section>
   `,
@@ -533,19 +537,36 @@ const ReadingBubbleMap = {
   props: ["categories", "fallbackCover"],
   emits: ["select-book"],
   data() {
-    return { allBooks: [], pool: [], shown: [], poppingId: null, slideInId: null };
+    return { allBooks: [], pool: [], shown: [], poppingId: null, slideInId: null, loading: true };
   },
   async mounted() {
-    try {
-      var resp = await fetch('/api/books?limit=2000&sort=updated');
-      var json = await resp.json();
-      if (json.ok) {
-        this.allBooks = (json.data.items || []).filter(function(b) { return b.cover && b.title && b.author && b.author !== '佚名' && b.author !== '未知'; });
-        this.fillPool();
-      }
-    } catch(e) {}
+    await this.loadBooks();
   },
   methods: {
+    async loadBooks(retries) {
+      retries = retries === undefined ? 0 : retries;
+      try {
+        var resp = await fetch('/api/books/light?limit=5000');
+        var json = await resp.json();
+        if (json.ok) {
+          this.allBooks = (json.data.items || []);
+          this.fillPool();
+          this.loading = false;
+        } else if (retries < 2) {
+          var self = this;
+          setTimeout(function() { self.loadBooks(retries + 1); }, 1500);
+        } else {
+          this.loading = false;
+        }
+      } catch(e) {
+        if (retries < 2) {
+          var self = this;
+          setTimeout(function() { self.loadBooks(retries + 1); }, 1500);
+        } else {
+          this.loading = false;
+        }
+      }
+    },
     fillPool() {
       var shown = this.shown;
       var available = this.allBooks.filter(function(b) { return !shown.includes(b.book_id); });
@@ -604,7 +625,14 @@ const ReadingBubbleMap = {
   template: `
     <div class="bubble-map">
       <div class="bubble-map-title">书海拾贝</div>
-      <div class="bubble-cloud">
+      <div class="bubble-cloud" v-if="loading">
+        <div class="bubble-item skeleton-bubble" v-for="n in 9" :key="'sk-'+n" :style="{ width: '90px' }">
+          <span class="bubble-inner skeleton-circle"></span>
+        </div>
+        <p class="skeleton-loading-text">正在从书架中拾取好书...</p>
+      </div>
+      <div class="bubble-cloud" v-else>
+
         <div
           class="bubble-item"
           :class="{ 'slide-in': slideInId === b.book_id }"
@@ -733,7 +761,7 @@ const CategoryPie = {
 };
 
 const DashboardPage = {
-  components: { MetricCard, ReadingStats, CurrentReading, ReadingHeatmap, DashboardPie },
+  components: { MetricCard, ReadingStats, CurrentReading, ReadingHeatmap, DashboardPie, ReadingBubbleMap },
   props: ["summary", "categories", "currentBooks", "heatmap", "fallbackCover"],
   emits: ["open-page", "select-book"],
   template: `
@@ -756,7 +784,12 @@ const DashboardPage = {
       </div>
 
       <div class="visual-grid">
-        <reading-heatmap :heatmap="heatmap"></reading-heatmap>
+        <reading-heatmap :heatmap="heatmap"><
+        <reading-bubble-map
+          :categories="categories"
+          :fallback-cover="fallbackCover"
+          @select-book="$emit('select-book', $event)"
+        ></reading-bubble-map>/reading-heatmap>
         <dashboard-pie :categories="categories"></dashboard-pie>
       </div>
     </section>

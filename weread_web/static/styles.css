@@ -2524,7 +2524,30 @@ button.category-row:hover {
   align-items: center;
   flex-shrink: 0;
   animation: bubble-appear 0.55s ease-out both;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
+
+.skeleton-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.skeleton-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--line);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  box-shadow: none !important;
+}
+
+
 
 .bubble:hover {
   transform: scale(1.12) !important;
@@ -2602,6 +2625,16 @@ button.category-row:hover {
   .bubble-item {
     transform: scale(0.88);
   }
+}
+
+.skeleton-loading-text {
+  flex: 0 0 100%;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
 @media (max-width: 640px) {
@@ -2957,6 +2990,56 @@ button.category-row:hover {
 }
 
 @media (max-width: 640px) {
+  .sync {
+    padding-top: 6px;
+    gap: 0;
+  }
+
+  .sync span {
+    font-size: 10px;
+    line-height: 14px;
+  }
+
+  .sync strong {
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .topbar {
+    margin-bottom: 8px;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .topbar .eyebrow {
+    font-size: 9px;
+    line-height: 12px;
+  }
+
+  .topbar h2 {
+    margin-top: 3px;
+    font-size: 18px;
+    line-height: 1.15;
+  }
+
+  .topbar .subtitle {
+    margin-top: 5px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .topbar .icon-button {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    border-radius: 7px;
+  }
+
+  .topbar .icon-button .icon {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
   .metric-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 6px;
@@ -3033,6 +3116,21 @@ button.category-row:hover {
 
   .bubble {
     height: 58px !important;
+  }
+
+  .skeleton-circle {
+    width: 58px;
+    height: 58px;
+  }
+
+  .bubble-cloud .skeleton-loading-text {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 100%;
+    margin: 2px 0 0;
+    text-align: center;
+    font-size: 11px;
+    line-height: 16px;
   }
 
   .bubble-item,

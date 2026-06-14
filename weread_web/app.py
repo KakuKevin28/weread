@@ -789,5 +789,31 @@ def summary_uncached():
         return api_error(exc)
 
 
+
+@app.get("/api/books/light")
+def books_light():
+    """Lightweight endpoint for BubbleMap — only book_id, title, author, cover."""
+    try:
+        limit = min(max(int(request.args.get("limit", 2000)), 1), 5000)
+        offset = max(int(request.args.get("offset", 0)), 0)
+        rows = fetch_all(
+            """
+            SELECT book_id, title, author, cover
+            FROM books
+            WHERE cover IS NOT NULL AND cover != ''
+              AND title IS NOT NULL AND title != ''
+              AND author IS NOT NULL AND author != ''
+            ORDER BY book_id
+            LIMIT %s OFFSET %s
+            """,
+            [limit, offset],
+        )
+        total = fetch_one("SELECT COUNT(*) AS total FROM books WHERE cover IS NOT NULL AND cover != '' AND title IS NOT NULL AND title != ''")["total"]
+        return ok({"items": rows, "total": total, "limit": limit, "offset": offset})
+    except Exception as exc:
+        return api_error(exc)
+
+
+
 if __name__ == "__main__":
-    app.run(host=os.getenv("WEREAD_WEB_HOST", "127.0.0.1"), port=int(os.getenv("WEREAD_WEB_PORT", "5050")), debug=False)
+    app.run(host=os.getenv("WEREAD_WEB_HOST", "0.0.0.0"), port=int(os.getenv("WEREAD_WEB_PORT", "5050")), debug=False)
