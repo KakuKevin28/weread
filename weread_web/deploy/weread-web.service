@@ -1,0 +1,16 @@
+[Unit]
+Description=WeRead Web Flask app
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/weread/weread_web
+EnvironmentFile=/opt/weread/weread_web/.env
+ExecStart=/opt/weread/weread_web/.venv/bin/gunicorn --workers 2 --threads 4 --timeout 60 --bind 127.0.0.1:5050 app:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

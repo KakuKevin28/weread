@@ -1,0 +1,2 @@
+Scrapy>=2.15.2
+PyMySQL>=1.1.3

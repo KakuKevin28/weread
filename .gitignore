@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Databases and runtime state
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Logs
+*.log
+*.out.log
+*.err.log
+logs/
+
+# Frontend dependencies and build output
+node_modules/
+dist/
+build/
+
+# Generated local artifacts
+moments/
+screenshots/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

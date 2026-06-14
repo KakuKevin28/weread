@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>微信读书</title>
+    <style>
+      [v-cloak] {
+        display: none !important;
+      }
+    </style>
+    <link rel="stylesheet" href="[[ url_for('static', filename='styles.css') ]]?v=16" />
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <app-sidebar
+        :view="view"
+        :summary="summary"
+        :nav-items="navItems"
+        @change-view="setView"
+      ></app-sidebar>
+
+      <main class="main">
+        <page-header
+          :title="title"
+          :subtitle="subtitle"
+          :summary="summary"
+          @refresh="refreshData"
+        ></page-header>
+
+        <p class="error" v-if="error">{{ error }}</p>
+
+        <transition name="fade" mode="out-in">
+          <dashboard-page
+            v-if="view === 'dashboard'"
+            key="dashboard"
+            :summary="summary"
+            :categories="categories"
+            :current-books="currentBooks"
+            :heatmap="heatmap"
+            :fallback-cover="fallbackCover"
+            @open-page="setView"
+            @select-book="selectBook"
+          ></dashboard-page>
+
+          <categories-page
+            v-else-if="view === 'categories'"
+            key="categories"
+           :categories="categories"
+           :summary="summary"
+           :fallback-cover="fallbackCover"
+           @select-book="selectBook"
+         ></categories-page>
+
+          <notes-page
+            v-else-if="view === 'notes'"
+            key="notes"
+            :notes="notes"
+            :fallback-cover="fallbackCover"
+          ></notes-page>
+        </transition>
+      </main>
+
+      <book-detail-drawer
+        v-if="selectedBook"
+        :detail="selectedBook"
+        :fallback-cover="fallbackCover"
+        @close="selectedBook = null"
+      ></book-detail-drawer>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="[[ url_for('static', filename='lucide.min.js') ]]"></script>
+    <script src="[[ url_for('static', filename='app.js') ]]?v=9"></script>
+  </body>
+</html>
