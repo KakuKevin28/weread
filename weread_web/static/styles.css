@@ -2957,6 +2957,60 @@ button.category-row:hover {
 }
 
 @media (max-width: 640px) {
+  .metric-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .metric {
+    min-height: 76px;
+    padding: 8px 4px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 22px 14px 22px;
+    justify-items: center;
+    align-items: center;
+    gap: 3px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .metric-icon {
+    grid-row: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+  }
+
+  .metric-icon .icon {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .metric span,
+  .metric strong,
+  .metric small {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .metric span {
+    font-size: 10px;
+    line-height: 14px;
+  }
+
+  .metric strong {
+    font-size: 13px;
+    line-height: 22px;
+  }
+
+  .metric small {
+    display: none;
+  }
+
   .bubble-map {
     min-height: 0;
     margin-bottom: 10px;
